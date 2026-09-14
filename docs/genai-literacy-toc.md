@@ -1,11 +1,12 @@
 # Generative AI Literacy — A User's Table of Contents
-*For working with ComfyUI + Hugging Face models + OpenCode, on an L4/T4 GPU. No math required — this is "know what the knob does," not "derive the knob."*
+
+_For working with ComfyUI + Hugging Face models + OpenCode, on an L4/T4 GPU. No math required — this is "know what the knob does," not "derive the knob."_
 
 ---
 
 ## How to use this doc
 
-Each section is a cluster of terms you'll bump into together. Work top to bottom — later sections assume you're loosely familiar with earlier ones. For each term: a plain-English definition, and *where you'll actually see it* (a ComfyUI node, a HF model card field, or a filename pattern).
+Each section is a cluster of terms you'll bump into together. Work top to bottom — later sections assume you're loosely familiar with earlier ones. For each term: a plain-English definition, and _where you'll actually see it_ (a ComfyUI node, a HF model card field, or a filename pattern).
 
 ---
 
@@ -18,32 +19,34 @@ Text prompt → Text Encoder → "Latent space" → Diffusion/Denoising loop →
 ```
 
 - **Text-to-X** — text is turned into a numeric representation, then that representation guides an iterative "sculpting" process that ends in an image, audio clip, or video.
-- **Latent space** — a compressed, abstract representation of the image/audio that the model actually works in (not raw pixels). Compression is *why* generation is fast enough to run on a consumer GPU.
+- **Latent space** — a compressed, abstract representation of the image/audio that the model actually works in (not raw pixels). Compression is _why_ generation is fast enough to run on a consumer GPU.
 - **Pipeline** — HF's word for "the whole chain of components (text encoder + model + VAE) wired together to go from prompt to output."
 
 ---
 
 ## 2. Core Architecture Vocabulary
-*(You need to recognize these words on a model card. You don't need to know the math behind them.)*
 
-| Term | Plain-English meaning | Where you'll see it |
-|---|---|---|
-| **Diffusion model** | A model that generates by starting from random noise and gradually "denoising" it into a coherent output over many steps. | Most SD/SDXL/FLUX-era models |
-| **Flow matching** | A newer, related generation method (used by FLUX, Qwen-Image, Z-Image) — same "start messy, end clean" idea, but the math path is different. As a user, treat it like diffusion: same knobs (steps, sampler), often faster convergence. | Model cards for FLUX, Qwen-Image, Z-Image |
-| **VAE (Variational Autoencoder)** | The component that translates between latent space and real pixels/audio. "VAE Decode" = latent → final image. "VAE Encode" = image → latent (needed for image-to-image). | `VAELoader`, `VAEDecode`, `VAEEncode` nodes in ComfyUI |
-| **U-Net** | The older-style "denoiser" architecture (SD1.5, SDXL). | Legacy models |
-| **DiT (Diffusion Transformer)** | The newer denoiser architecture (FLUX, Z-Image, Qwen-Image, most video/audio models now). Just know: DiT-based models are the current generation and tend to scale better. | Model cards, "Transformer" loader nodes |
-| **Text encoder / CLIP** | Converts your prompt text into the numeric guidance signal. Different models use different text encoders (CLIP, T5, Llama-based) — this is why prompt style that works for SD1.5 doesn't always work for FLUX. | `CLIPLoader`, `DualCLIPLoader` nodes |
-| **Attention** | The mechanism that lets the model relate different parts of the prompt to different parts of the image. You'll mostly meet this indirectly, via *attention/prompt weighting* syntax like `(word:1.3)`. | Prompt syntax |
-| **Checkpoint** | A saved, trained model — the actual file you load. "Loading a checkpoint" = loading a specific model's brain. | `.safetensors` files, `CheckpointLoader` node |
+_(You need to recognize these words on a model card. You don't need to know the math behind them.)_
+
+| Term                              | Plain-English meaning                                                                                                                                                                                                                   | Where you'll see it                                    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **Diffusion model**               | A model that generates by starting from random noise and gradually "denoising" it into a coherent output over many steps.                                                                                                               | Most SD/SDXL/FLUX-era models                           |
+| **Flow matching**                 | A newer, related generation method (used by FLUX, Qwen-Image, Z-Image) — same "start messy, end clean" idea, but the math path is different. As a user, treat it like diffusion: same knobs (steps, sampler), often faster convergence. | Model cards for FLUX, Qwen-Image, Z-Image              |
+| **VAE (Variational Autoencoder)** | The component that translates between latent space and real pixels/audio. "VAE Decode" = latent → final image. "VAE Encode" = image → latent (needed for image-to-image).                                                               | `VAELoader`, `VAEDecode`, `VAEEncode` nodes in ComfyUI |
+| **U-Net**                         | The older-style "denoiser" architecture (SD1.5, SDXL).                                                                                                                                                                                  | Legacy models                                          |
+| **DiT (Diffusion Transformer)**   | The newer denoiser architecture (FLUX, Z-Image, Qwen-Image, most video/audio models now). Just know: DiT-based models are the current generation and tend to scale better.                                                              | Model cards, "Transformer" loader nodes                |
+| **Text encoder / CLIP**           | Converts your prompt text into the numeric guidance signal. Different models use different text encoders (CLIP, T5, Llama-based) — this is why prompt style that works for SD1.5 doesn't always work for FLUX.                          | `CLIPLoader`, `DualCLIPLoader` nodes                   |
+| **Attention**                     | The mechanism that lets the model relate different parts of the prompt to different parts of the image. You'll mostly meet this indirectly, via _attention/prompt weighting_ syntax like `(word:1.3)`.                                  | Prompt syntax                                          |
+| **Checkpoint**                    | A saved, trained model — the actual file you load. "Loading a checkpoint" = loading a specific model's brain.                                                                                                                           | `.safetensors` files, `CheckpointLoader` node          |
 
 ---
 
 ## 3. Generation-Time Controls
-*(These are the dials you'll turn constantly. This is the highest-leverage section for hands-on fluency.)*
+
+_(These are the dials you'll turn constantly. This is the highest-leverage section for hands-on fluency.)_
 
 - **Sampler** — the specific step-by-step algorithm used to do the denoising (e.g., Euler, DPM++ 2M, UniPC). Different samplers trade off speed vs. quality vs. "look." Practically: try 2–3, keep the one you like.
-- **Scheduler** — controls *how much* noise is removed at each step across the run (e.g., normal, karras, sgm_uniform). Paired with the sampler in ComfyUI's `KSampler` node.
+- **Scheduler** — controls _how much_ noise is removed at each step across the run (e.g., normal, karras, sgm_uniform). Paired with the sampler in ComfyUI's `KSampler` node.
 - **Steps** — how many denoising iterations to run. More steps ≈ more refinement, with diminishing returns (and some models are specifically distilled to need very few — see §5).
 - **CFG / Guidance Scale** — how strongly the model is pushed to follow your prompt vs. wander freely. Low = more creative/loose, high = more literal (and can get "crispy"/over-saturated if too high).
 - **Seed** — the starting random noise pattern. Same seed + same settings = reproducible output. This is your "undo/redo" for experimentation.
@@ -54,23 +57,25 @@ Text prompt → Text Encoder → "Latent space" → Diffusion/Denoising loop →
 ---
 
 ## 4. Adaptation & Customization
-*(How people make a base model do something specific without retraining it from scratch — this is most of what makes ComfyUI powerful.)*
+
+_(How people make a base model do something specific without retraining it from scratch — this is most of what makes ComfyUI powerful.)_
 
 - **LoRA (Low-Rank Adaptation)** — a small "patch" file (tens to hundreds of MB, vs. GBs for a full model) that nudges a base model toward a specific style, character, or concept. You stack these, adjust their **strength/weight**, and can load several at once. This is the single most important adaptation concept for a ComfyUI user.
 - **LyCORIS** — a family of LoRA-like alternatives (LoHa, LoCon, etc.) with different trade-offs; functionally, treat like "a fancier LoRA."
-- **Textual Inversion / Embedding** — an even smaller file that teaches the model a new *word* (tied to a concept/style) rather than adjusting model weights. Less powerful than LoRA, but tiny.
-- **DreamBooth** — a *training method* (not a file type) for teaching a model a specific subject by fine-tuning on a handful of images. You'll see this term mostly in the context of "how was this checkpoint/LoRA made," not something you do casually.
+- **Textual Inversion / Embedding** — an even smaller file that teaches the model a new _word_ (tied to a concept/style) rather than adjusting model weights. Less powerful than LoRA, but tiny.
+- **DreamBooth** — a _training method_ (not a file type) for teaching a model a specific subject by fine-tuning on a handful of images. You'll see this term mostly in the context of "how was this checkpoint/LoRA made," not something you do casually.
 - **ControlNet** — a companion network that lets you guide generation using a structural signal — an edge map, a depth map, a pose skeleton — instead of (or alongside) text. Needs a matching **preprocessor** (e.g., Canny edge detector, DWPose, Depth Anything) to turn your reference image into the control signal first.
-- **IP-Adapter** — lets you use a reference *image* as a style/identity guide (instead of a structural map like ControlNet). Common for "make it look like this person/style."
+- **IP-Adapter** — lets you use a reference _image_ as a style/identity guide (instead of a structural map like ControlNet). Common for "make it look like this person/style."
 - **Control-LoRA** — a lighter-weight alternative to full ControlNet, packaged as a LoRA.
 
 ---
 
 ## 5. Efficiency & Quantization
-*(This is the section that actually matters for your L4/T4 — what makes a model fit and run fast.)*
+
+_(This is the section that actually matters for your L4/T4 — what makes a model fit and run fast.)_
 
 - **Precision (fp32 / fp16 / bf16 / fp8)** — how many bits are used to store each number in the model. Lower precision = smaller file, less VRAM, faster — usually with a small, often invisible quality cost. Most ComfyUI workflows default to fp16 or bf16 already.
-- **Quantization** — more aggressive compression than just lowering precision, often down to 8-bit, 4-bit, or lower. This is *the* technique for running big models (FLUX, Qwen-Image) on 8–24GB cards.
+- **Quantization** — more aggressive compression than just lowering precision, often down to 8-bit, 4-bit, or lower. This is _the_ technique for running big models (FLUX, Qwen-Image) on 8–24GB cards.
 - **GGUF** — a quantized file format (borrowed from the LLM world) increasingly used for diffusion/DiT models in ComfyUI. If you see a model with a `.gguf` extension and a "Q4/Q8" label, that's this.
 - **SVDQuant / Nunchaku** — a specific modern 4-bit quantization method + its ComfyUI plugin, notable for keeping quality high at 4-bit. Worth knowing by name since it shows up a lot for FLUX/Qwen-Image/Z-Image on smaller GPUs.
 - **Distilled / Turbo / Lightning / LCM models** — versions of a base model specifically retrained to need far fewer steps (e.g., 4–8 instead of 20–30) for similar quality. Huge deal for iteration speed on a single GPU.
@@ -78,10 +83,30 @@ Text prompt → Text Encoder → "Latent space" → Diffusion/Denoising loop →
 - **Tiled VAE / Tiled decoding** — decoding a large latent in chunks instead of all at once, so you don't run out of VRAM at the final image-decode step (a common failure point, not the main model!).
 - **VRAM** — GPU memory. The single most common thing you'll be managing as a hands-on user. L4 = 24GB, T4 = 16GB — both fine for quantized versions of most current open models.
 
+## 5a. Split-Component Models — Check Before You Download
+
+_(Some models don't come as one file from one repo. Downloading only the
+"obvious" file leaves a workflow that can't run — not because anything's
+broken, but because a piece was never fetched. Check here before running
+the model-download step.)_
+
+The tell on a model card: the file list shows a `transformer/` or `unet/`
+**folder** containing multiple shards + an `index.json` (diffusers format,
+not ComfyUI-ready), or the card mentions text encoders/VAE as separate
+downloads from a different repo.
+
+| Model family           | What you actually need                                                                                                                                                                                                                                                                                                                                                   | Where each piece comes from                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| **FLUX** (dev/schnell) | 1) Diffusion weights — the single-file `flux1-dev.safetensors` (NOT the `transformer/` diffusers-format folder in the same repo — same repo, two different artifacts) → `models/unet/`. 2) VAE — `ae.safetensors` → `models/vae/`. 3) Text encoders — `clip_l.safetensors` + `t5xxl_fp16.safetensors` (or `t5xxl_fp8_e4m3fn.safetensors` for less VRAM) → `models/clip/` | (1) and (2) from `black-forest-labs/FLUX.1-dev`. (3) from a **separate** repo: `comfyanonymous/flux_text_encoders` |
+
+_Add a row here the next time a model turns out to need more than one
+download — this table is meant to grow, not to be complete on day one._
+
 ---
 
 ## 6. The Model Landscape (2026 snapshot)
-*(Names you'll see on Hugging Face and in ComfyUI workflow templates.)*
+
+_(Names you'll see on Hugging Face and in ComfyUI workflow templates.)_
 
 - **Image**: Stable Diffusion 1.5 / SDXL (older, U-Net-based, huge LoRA ecosystem) → FLUX (DiT/flow-matching, high quality, heavier) → Qwen-Image, Z-Image Turbo (newer DiT models, strong at smaller footprints, fast "Turbo" variants).
 - **Video**: Wan, AnimateDiff (motion added on top of an image model), Step-Video, HunyuanVideo — heavier, usually need aggressive quantization or shorter clips on an L4.
@@ -91,7 +116,8 @@ Text prompt → Text Encoder → "Latent space" → Diffusion/Denoising loop →
 ---
 
 ## 7. ComfyUI-Specific Vocabulary
-*(The tool itself, since your workflow will be built as a JSON graph.)*
+
+_(The tool itself, since your workflow will be built as a JSON graph.)_
 
 - **Node** — one processing block in the graph (e.g., "Load Checkpoint," "KSampler," "VAE Decode"). Each does one job.
 - **Workflow** — the full graph of connected nodes, saved as a `.json` file — this is the thing your agent (OpenCode) can generate and you drag-and-drop.
@@ -99,7 +125,7 @@ Text prompt → Text Encoder → "Latent space" → Diffusion/Denoising loop →
 - **Custom nodes** — community-built extensions (installed via **ComfyUI Manager**) that add support for new models, techniques (Nunchaku, ACE-Step, IPAdapter, etc.), or conveniences. Almost everything past "vanilla Stable Diffusion" requires installing custom nodes.
 - **Model / VAE / LoRA / ControlNet loaders** — the family of nodes whose only job is "point me at a file on disk and hand its data downstream."
 - **Preprocessor** — a node that converts a plain image into a control signal for ControlNet (e.g., turning a photo into a depth map or edge map).
-- **Queue** — ComfyUI executes a workflow when you hit "Queue Prompt"; understanding the queue (and that only *changed* parts of the graph re-run) explains why iterating is fast.
+- **Queue** — ComfyUI executes a workflow when you hit "Queue Prompt"; understanding the queue (and that only _changed_ parts of the graph re-run) explains why iterating is fast.
 
 ---
 
@@ -129,9 +155,9 @@ A few working concepts, since you're using an agent as the interface:
 2. **§7** (ComfyUI nodes) — learn to read a graph before building one.
 3. **§4** (LoRA/ControlNet) — this is where "user literacy" pays off most; it's 90% of what people do with ComfyUI day to day.
 4. **§5** (quantization/efficiency) — once you hit your first VRAM error, this section becomes very motivating.
-5. **§2 + §6** (architecture + model landscape) — background literacy for reading model cards and understanding *why* a new model behaves differently, without needing the underlying math.
+5. **§2 + §6** (architecture + model landscape) — background literacy for reading model cards and understanding _why_ a new model behaves differently, without needing the underlying math.
 6. **§8 + §9** — pick up as needed when you start scripting outside pure drag-and-drop.
 
 ---
 
-*Note: quantization method names, model releases (Z-Image, ACE-Step 1.5, etc.), and specific ComfyUI node names move fast — treat the model/tool names in §5–§6 as a snapshot of September 2026, and expect the underlying concepts (LoRA, VAE, quantization, sampler/scheduler) to stay stable much longer than any specific model name.*
+_Note: quantization method names, model releases (Z-Image, ACE-Step 1.5, etc.), and specific ComfyUI node names move fast — treat the model/tool names in §5–§6 as a snapshot of September 2026, and expect the underlying concepts (LoRA, VAE, quantization, sampler/scheduler) to stay stable much longer than any specific model name._
