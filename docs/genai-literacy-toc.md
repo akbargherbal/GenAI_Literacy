@@ -146,6 +146,8 @@ A few working concepts, since you're using an agent as the interface:
 - **Agent / tool-use loop** — OpenCode isn't just chatting; it's calling tools (reading files, running code, hitting the ComfyUI API) and reacting to results. Useful to know so you can tell when it's "looking something up" vs. "guessing."
 - **MCP (Model Context Protocol)** — the standard way agents like OpenCode connect to external tools/services (e.g., a ComfyUI server, a file system). This is the plumbing that lets it "see" your ComfyUI setup.
 - **Workflow JSON as the shared artifact** — the most productive way to use OpenCode here is treating the `.json` workflow file as the thing you co-edit: ask it to modify a specific node's settings or add a node, rather than "regenerate everything," so you can track what changed.
+- **Live canvas vs. saved artifact** — the graph drawn in your browser tab is *client-side* state with no server API to read or overwrite it. The only thing an agent can see is what ComfyUI has flushed to disk (autosave) or the exact graph sent on a run. "What's on my canvas right now" is answerable only after it's saved.
+- **Autosave / userdata API** — ComfyUI's frontend periodically writes the active workflow to `user/default/workflows/<name>.json`, and exposes the file list (with size + modified time) at `GET /userdata?dir=workflows&recurse=true`. This is the practical bridge that lets an agent reconstruct your state — and why a new file won't appear in an already-open sidebar until a reload.
 
 ---
 

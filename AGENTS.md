@@ -66,6 +66,36 @@ Every session stands on its own. There is no syllabus and no required order.
   `workflow-inspector` skill when the user hands over an existing `.json`
   workflow and wants it explained.
 
+## Live ComfyUI — how to see it and change it
+
+The user often has a ComfyUI server running locally (default
+`http://127.0.0.1:8188`; this project's instance lives at `/content/ComfyUI`).
+Talk to its API directly with `curl`. Be precise about what is reachable:
+
+- **Readable:** autosaved workflows at `user/default/workflows/*.json`; settings at
+  `user/default/comfy.settings.json` (also `GET /settings`); the file list with size
+  + mtime via `GET /userdata?dir=workflows&recurse=true&split=false&full_info=true`;
+  what ran via `GET /history` and `GET /queue`; installed nodes via `GET /object_info`.
+- **Not readable:** the live canvas in the browser tab (client-side state), unsaved
+  in-memory edits, selection/viewport/undo. There is no API to read *or* overwrite
+  the open canvas — only the autosaved file and the run history.
+- **No background awareness:** you only see state when you go and look. Never claim
+  to know what's on the canvas without reading it from disk or `/history`.
+
+Conventions that keep us in sync:
+
+- Before answering anything about "the current workflow / this value", read the file
+  from disk and compare `size`/`modified` against what you last saw — don't assume.
+- Treat the most recently modified `.json` under `user/default/workflows/` as the
+  active workflow, unless a canonical path is agreed (prefer one — e.g.
+  `sessions/<date>_<topic>/workflows/current.json` — and read that first).
+- When you write a workflow the user should see, write it into
+  `user/default/workflows/` and tell them to **hard-reload** the tab: the frontend
+  caches its workflow list and settings, so nothing new appears until reload.
+- Execution events (`ws://127.0.0.1:8188/ws`) fire on runs only, not canvas edits.
+
+Fuller rationale and layered sync options: `docs/comfyui-agent-sync.md`.
+
 ## Persistence reminder
 
 This repo is the only memory this project has. If it's not committed to git

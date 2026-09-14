@@ -28,6 +28,12 @@ T4 16GB; check glossary §5 for quantized/distilled options if the base model
 doesn't fit). Build or modify a ComfyUI workflow, saving it to
 `workflows/<descriptive-name>.json` inside this session's folder.
 
+If the user is iterating live in ComfyUI, keep `workflows/current.json` in this
+session as the canonical live file (see `AGENTS.md` → "Live ComfyUI"): read it
+before answering anything about current values, and tell the user to hard-reload
+the tab after you write a new one. For the fuller sync rationale and optional
+watcher/push layers, see `docs/comfyui-agent-sync.md`.
+
 If the change is more than a couple of nodes, write a walkthrough to
 `session_handouts/02-workflow-walkthrough.md` explaining what changed and why,
 node by node. For a trivial one-node tweak, a single chat sentence is enough —

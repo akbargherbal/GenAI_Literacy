@@ -6,4 +6,4 @@ first. Purely for finding things; nothing here is required reading.
 
 | Date | Topic | Handouts | Workflow(s) |
 |---|---|---|---|
-| — | *(no sessions yet)* | — | — |
+| 2026-09-14 | Agent ↔ ComfyUI sync (test session) | `docs/comfyui-agent-sync.md` (framework doc) | `2026-09-14_agent-comfyui-sync/workflows/opencode-test-txt2img-as-edited.json` |

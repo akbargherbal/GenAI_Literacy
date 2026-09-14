@@ -6,6 +6,11 @@ description: Use when the user shares, points to, or asks to explain an existing
 # Workflow Inspector Protocol
 
 1. Read the target `.json` workflow file directly (don't guess from filename).
+   If no path is given, resolve the active workflow per `AGENTS.md` → "Live
+   ComfyUI": prefer the canonical `sessions/<date>_<topic>/workflows/current.json`
+   if it exists, otherwise the most recently modified `.json` under
+   `/content/ComfyUI/user/default/workflows/`. Note that this is the autosaved
+   file, not the user's live canvas — if the canvas might have moved on, say so.
 2. Write the node-by-node walkthrough to a markdown handout, not the terminal:
    - If there's an active session folder for today, save it as the next
      numbered file in that session's `session_handouts/`.

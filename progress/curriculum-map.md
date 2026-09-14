@@ -53,6 +53,7 @@ let an unchecked box read as "owed."
 
 ## §9 OpenCode / agent vocabulary
 - [ ] Used OpenCode to modify a specific node in an existing workflow
+- [x] Explored what an agent can and can't see of live ComfyUI (autosave file vs. client-side canvas)
 
 ---
 *If a session surfaces a concept not yet in the glossary, add it to
